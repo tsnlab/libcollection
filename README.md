@@ -1,2 +1,2 @@
-# libds
-Data structure library
+# libcollection
+Collection library for embedded S/W.
