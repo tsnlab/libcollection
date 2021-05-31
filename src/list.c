@@ -2,8 +2,8 @@
 #include <malloc.h>
 #include <string.h>
 
-struct cl_List* cl_List_create(int (*compare)(void* v1, void* v2)) {
-    struct cl_List* list = calloc(1, sizeof(struct cl_List));
+struct list* list_create(size_t (*compare)(void* v1, void* v2)) {
+    struct list* list = calloc(1, sizeof(struct list));
     if(list == NULL) {
         return NULL;
     }
@@ -13,12 +13,12 @@ struct cl_List* cl_List_create(int (*compare)(void* v1, void* v2)) {
     return list;
 }
 
-void cl_List_destroy(struct cl_List* list) {
-    struct cl_ListIterator iter;
-    cl_ListIterator_init(&iter, list);
+void list_destroy(struct list* list) {
+    struct list_iterator iter;
+    list_iterator_init(&iter, list);
 
-    while(cl_ListIterator_has_next(&iter)) {
-        cl_ListIterator_next(&iter);
+    while(list_iterator_has_next(&iter)) {
+        list_iterator_next(&iter);
 
         if(iter.current != NULL) {
             free(iter.current);
@@ -28,7 +28,7 @@ void cl_List_destroy(struct cl_List* list) {
     free(list);
 }
 
-static void _add(struct cl_List* list, struct cl_ListNode* prev, struct cl_ListNode* node) {
+static void _add(struct list* list, struct listNode* prev, struct listNode* node) {
     if(prev != NULL) {
         if(prev->next != NULL) {
             prev->next->prev = node;
@@ -46,8 +46,8 @@ static void _add(struct cl_List* list, struct cl_ListNode* prev, struct cl_ListN
     list->size++;
 }
 
-bool cl_List_add(struct cl_List* list, void* data) {
-    struct cl_ListNode* node = calloc(1, sizeof(struct cl_ListNode));
+bool list_add(struct list* list, void* data) {
+    struct listNode* node = calloc(1, sizeof(struct listNode));
     if(node == NULL) {
         return NULL;
     }
@@ -58,8 +58,8 @@ bool cl_List_add(struct cl_List* list, void* data) {
     return true;
 }
 
-bool cl_List_add_at(struct cl_List* list, size_t idx, void* data) {
-    struct cl_ListNode* node = calloc(1, sizeof(struct cl_ListNode));
+bool list_add_at(struct list* list, size_t idx, void* data) {
+    struct listNode* node = calloc(1, sizeof(struct listNode));
     if(node == NULL) {
         return NULL;
     }
@@ -80,7 +80,7 @@ bool cl_List_add_at(struct cl_List* list, size_t idx, void* data) {
     } else {
         idx--;
 
-        struct cl_ListNode* cursor = list->head;
+        struct listNode* cursor = list->head;
         while(idx > 0) {
             if(cursor->next != NULL) {
                 return NULL;
@@ -96,7 +96,7 @@ bool cl_List_add_at(struct cl_List* list, size_t idx, void* data) {
     return true;
 }
 
-static void _remove(struct cl_List* list, struct cl_ListNode* node) {
+static void _remove(struct list* list, struct listNode* node) {
     if(list->head == node) {
         list->head = node->next;
     }
@@ -118,12 +118,12 @@ static void _remove(struct cl_List* list, struct cl_ListNode* node) {
     free(node);
 }
 
-bool cl_List_remove(struct cl_List* list, void* data) {
-    struct cl_ListNode* node = list->head;
+bool list_remove(struct list* list, void* data) {
+    struct listNode* node = list->head;
 
     while(node != NULL) {
-        void* node_data = node->data;
-        if(node_data == data || (list->compare != NULL && list->compare(node_data, data))) {
+		printf("comp: %p vs %p\n", node->data, data);
+        if(node->data == data || (list->compare != NULL && list->compare(node->data, data))) {
             _remove(list, node);
             return true;
         }
@@ -134,8 +134,8 @@ bool cl_List_remove(struct cl_List* list, void* data) {
     return false;
 }
 
-void* cl_List_remove_at(struct cl_List* list, size_t idx) {
-    struct cl_ListNode* node = list->head;
+void* list_remove_at(struct list* list, size_t idx) {
+    struct listNode* node = list->head;
 
     while(idx > 0 && node != NULL) {
         node = node->next;
@@ -151,8 +151,8 @@ void* cl_List_remove_at(struct cl_List* list, size_t idx) {
     }
 }
 
-void* cl_List_get(struct cl_List* list, size_t idx) {
-    struct cl_ListNode* node = list->head;
+void* list_get(struct list* list, size_t idx) {
+    struct listNode* node = list->head;
 
     while(idx > 0) {
         if(node->next == NULL) {
@@ -170,21 +170,21 @@ void* cl_List_get(struct cl_List* list, size_t idx) {
     }
 }
 
-size_t cl_List_size(struct cl_List* list) {
+size_t list_size(struct list* list) {
     return list->size;
 }
 
-void cl_ListIterator_init(struct cl_ListIterator* iter, struct cl_List* list) {
+void list_iterator_init(struct list_iterator* iter, struct list* list) {
     iter->list = list;
     iter->current = NULL;
     iter->next = list->head;
 }
 
-bool cl_ListIterator_has_next(struct cl_ListIterator* iter) {
+bool list_iterator_has_next(struct list_iterator* iter) {
     return iter->next != NULL;
 }
 
-void* cl_ListIterator_next(struct cl_ListIterator* iter) {
+void* list_iterator_next(struct list_iterator* iter) {
     if(iter->next != NULL) {
         void* data = iter->next->data;
         iter->current = iter->next;
@@ -196,7 +196,7 @@ void* cl_ListIterator_next(struct cl_ListIterator* iter) {
     }
 }
 
-void* cl_ListIterator_remove(struct cl_ListIterator* iter) {
+void* list_iterator_remove(struct list_iterator* iter) {
     if(iter->current != NULL) {
         void* data = iter->current->data;
         _remove(iter->list, iter->current);
