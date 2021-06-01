@@ -3,3 +3,4 @@
 libcl.a
 *.swp
 gmon.out
+test

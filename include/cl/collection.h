@@ -37,13 +37,15 @@ size_t double_hash(void* value);
 #define to_str(value) ((char*)value)
 
 static inline void* from_f(float value) {
-    float tmp = value;                                 
-    return (void*)(uintptr_t)*(uint32_t*)&tmp;         
-}                                                      
-                                                       
-static inline float to_f(void* ptr) {   
-    uint32_t tmp = (uint32_t)(uintptr_t)ptr;       
-    return *(float*)&tmp;                             
+    float tmp = value;
+    void* tmp_ptr = &tmp;
+    return (void*)(uintptr_t) * (uint32_t*)tmp_ptr;
+}
+
+static inline float to_f(void* ptr) {
+    uint32_t tmp = (uint32_t)(uintptr_t)ptr;
+    void* tmp_ptr = &tmp;
+    return *(float*)tmp_ptr;
 }
 
 #if UINTPTR_MAX == 0xffffffffffffffffu // 64bit pointer
@@ -54,13 +56,15 @@ static inline float to_f(void* ptr) {
 #define to_i64(value) ((int64_t)(intptr_t)(value))
 
 static inline void* from_d(double value) {
-    double tmp = value;                                 
-    return (void*)(uintptr_t)*(uint64_t*)&tmp;         
-}                                                      
-                                                       
-static inline double to_d(void* ptr) {   
-    uint64_t tmp = (uint64_t)(uintptr_t)ptr;       
-    return *(double*)&tmp;                             
+    double tmp = value;
+    void* tmp_ptr = &tmp;
+    return (void*)(uintptr_t) * (uint64_t*)tmp_ptr;
+}
+
+static inline double to_d(void* ptr) {
+    uint64_t tmp = (uint64_t)(uintptr_t)ptr;
+    void* tmp_ptr = &tmp;
+    return *(double*)tmp_ptr;
 }
 
 #endif

@@ -2,7 +2,7 @@
 
 #include <cl/list.h>
 
-#define CL_MAP_THRESHOLD(cap)    (((cap) >> 1) + ((cap) >> 2))    // 75%
+#define CL_MAP_THRESHOLD(cap) (((cap) >> 1) + ((cap) >> 2)) // 75%
 
 struct map_entry {
     void* key;
@@ -20,7 +20,7 @@ struct map {
 };
 
 // Hash map
-struct map* map_create(size_t initial_capacity, size_t(*hash)(void*), size_t(*compare)(void*, void*));
+struct map* map_create(size_t initial_capacity, size_t (*hash)(void*), size_t (*compare)(void*, void*));
 void map_destroy(struct map* map);
 
 bool map_put(struct map* map, void* key, void* data);
