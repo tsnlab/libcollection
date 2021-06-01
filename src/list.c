@@ -122,7 +122,6 @@ bool list_remove(struct list* list, void* data) {
     struct listNode* node = list->head;
 
     while(node != NULL) {
-		printf("comp: %p vs %p\n", node->data, data);
         if(node->data == data || (list->compare != NULL && list->compare(node->data, data))) {
             _remove(list, node);
             return true;

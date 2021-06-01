@@ -56,31 +56,31 @@ bool map_put(struct map* map, void* key, void* data) {
     }
 
     // Enlarge threshold
-    if(map->size += 1 > map->threshold) {
-        struct map map2;
-        map2.capacity = map->capacity * 2;
-        map2.table = calloc(1, sizeof(struct list*) * map2.capacity);
-        if(map2.table == NULL) {
+    if(map->size + 1 > map->threshold) {
+        struct map tmp_map;
+        tmp_map.capacity = map->capacity * 2;
+        tmp_map.table = calloc(1, sizeof(struct list*) * tmp_map.capacity);
+        if(tmp_map.table == NULL) {
             return false;
         }
-        map2.threshold = CL_MAP_THRESHOLD(map2.capacity);
-        map2.size = 0;
-        map2.hash = map->hash;
-        map2.compare = map->compare;
+        tmp_map.threshold = CL_MAP_THRESHOLD(tmp_map.capacity);
+        tmp_map.size = 0;
+        tmp_map.hash = map->hash;
+        tmp_map.compare = map->compare;
 
         // copy
         struct map_iterator iter;
         map_iterator_init(&iter, map);
         while(map_iterator_has_next(&iter)) {
-            struct map_entry* entry = list_iterator_next(&iter.list_iter);
-            if(!map_put(&map2, entry->key, entry->data)) {
-                _destroy(&map2);
+            struct map_entry* entry = map_iterator_next(&iter);
+            if(!map_put(&tmp_map, entry->key, entry->data)) {
+                _destroy(&tmp_map);
                 return false;
             }
         }
 
         _destroy(map);
-        memcpy(map, &map2, sizeof(struct map));
+        memcpy(map, &tmp_map, sizeof(struct map));
     }
 
     // Create list
@@ -135,7 +135,7 @@ void* map_get(struct map* map, void* key) {
 struct map_entry* map_get_entry(struct map* map, void* key) {
     size_t idx = map->hash(key) % map->capacity;
     if(map->table[idx] == NULL) {
-        return false;
+        return NULL;
     }
 
     struct list_iterator iter;
@@ -180,6 +180,8 @@ struct map_entry map_remove(struct map* map, void* key) {
                 map->table[idx] = NULL;
             }
 
+			map->size--;
+
             return entry2;
         }
     }
@@ -197,8 +199,12 @@ size_t map_size(struct map* map) {
 
 void map_iterator_init(struct map_iterator* iter, struct map* map) {
 	iter->map = map;
-	for(iter->idx = 0; iter->idx < map->capacity && map->table[iter->idx] != NULL; iter->idx++);
-	list_iterator_init(&iter->list_iter, iter->map->table[iter->idx]);
+
+	for(iter->idx = 0; iter->idx < map->capacity && map->table[iter->idx] == NULL; iter->idx++);
+
+	if(iter->idx < map->capacity) {
+		list_iterator_init(&iter->list_iter, iter->map->table[iter->idx]);
+	}
 }
 
 bool map_iterator_has_next(struct map_iterator* iter) {
@@ -210,7 +216,7 @@ bool map_iterator_has_next(struct map_iterator* iter) {
 		return true;
 	}
 
-	for(iter->idx++; iter->idx < iter->map->capacity && iter->map->table[iter->idx] != NULL; iter->idx++);
+	for(iter->idx++; iter->idx < iter->map->capacity && iter->map->table[iter->idx] == NULL; iter->idx++);
 
 	if(iter->idx < iter->map->capacity) {
 		list_iterator_init(&iter->list_iter, iter->map->table[iter->idx]);

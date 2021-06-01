@@ -8,7 +8,6 @@ size_t string_compare(void* str1, void* str2) {
 size_t string_hash(void* str) {
 	size_t len = strlen(str);
 	size_t hash = 0;
-	size_t step = sizeof(size_t);
 
 	size_t i;
 	for(i = 0; i + sizeof(size_t) - 1 < len; i += sizeof(size_t)) {

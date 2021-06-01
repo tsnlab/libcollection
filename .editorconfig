@@ -3,6 +3,11 @@ charset = utf-8
 indent_style = space
 indent_size = 4
 
+[*.h]
+indent_size = 4
+curly_bracket_next_line = false
+indent_brace_style = K&R
+
 [*.c]
 indent_size = 4
 curly_bracket_next_line = false
