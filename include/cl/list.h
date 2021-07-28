@@ -23,7 +23,7 @@ void list_destroy(struct list* list);
 
 bool list_add(struct list* list, void* data);
 bool list_add_at(struct list* list, size_t idx, void* data);
-bool list_remove(struct list* list, void* data);
+void* list_remove(struct list* list, void* data);
 void* list_remove_at(struct list* list, size_t idx);
 void* list_get(struct list* list, size_t idx);
 size_t list_size(struct list* list);

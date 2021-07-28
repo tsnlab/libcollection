@@ -118,19 +118,20 @@ static void _remove(struct list* list, struct listNode* node) {
     free(node);
 }
 
-bool list_remove(struct list* list, void* data) {
+void* list_remove(struct list* list, void* data) {
     struct listNode* node = list->head;
 
     while(node != NULL) {
         if(node->data == data || (list->compare != NULL && list->compare(node->data, data))) {
+            void* old_data = node->data;
             _remove(list, node);
-            return true;
+            return old_data;
         }
 
         node = node->next;
     }
 
-    return false;
+    return NULL;
 }
 
 void* list_remove_at(struct list* list, size_t idx) {
